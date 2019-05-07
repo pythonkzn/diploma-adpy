@@ -13,7 +13,8 @@ class User:
                   'code': ''
                           'var usr_params = API.users.get({user_ids:' + str(self.id) + ', '
                           'fields: "sex, bdate, city, interests, relation"});'
-                          'return {"usr_params":usr_params};'
+                          'var people_lookfor = API.users.search({count: 10, city: (usr_params@.city)@.id[0], sex:(usr_params@.sex)[0]});'                                                             ''
+                          'return {"people_lookfor": people_lookfor};'
                   }
         try:
             response = requests.get(
