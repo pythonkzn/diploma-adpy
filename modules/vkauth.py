@@ -1,5 +1,4 @@
 import requests
-import getpass
 from html.parser import HTMLParser
 
 class FormParser(HTMLParser):
