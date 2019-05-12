@@ -28,7 +28,7 @@ class DB_Mongo:
 #            print(item)
 
 
-    def find_n_drop(self, criterian1, value1, criterian2, value2, criterian3, value3):
+    def find_n_drop_basic(self, criterian1, value1, criterian2, value2, criterian3, value3):
 
         # для каждого списка пользователей по базовому критерию
         # создается отдельная коллекция в Mongo DB
@@ -45,10 +45,6 @@ class DB_Mongo:
            find_buf_2.insert_one(item).inserted_id
         for item in find_buf_2.find({criterian3: value3}):
             find_buf_3.insert_one(item).inserted_id
-
-        for item in find_buf_3.find().limit(14):
-            print(item)
-
         print('Найдено {} пользователей удовлетворяющих базовым критериям'.format(self.db.buf3.find().count()))
 
         # очищаем БД
@@ -56,6 +52,28 @@ class DB_Mongo:
         self.db.data.drop()
         self.db.buf.drop()
         self.db.buf2.drop()
+        #self.db.buf3.drop()
+
+    def put_field(self):
+        self.db.buf3.update({},
+                          {'$set':{'com_group':0}},
+                          multi=True)
+
+
+    def put_value(self, id_in):
+        self.db.buf3.update({'id': id_in},
+                            {'$set': {'com_group': 1}})
+        for item in self.db.buf3.find():
+            print(item)
         self.db.buf3.drop()
+
+
+    def get_basic_id(self):
+        id_list = []
+        for item in self.db.buf3.find():
+            id_list.append(item['id'])
+        return id_list
+
+
 
 

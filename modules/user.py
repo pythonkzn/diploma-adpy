@@ -64,28 +64,42 @@ class User:
                 except requests.exceptions.ConnectionError:
                     print('Ошибка соединения. Завершение работы Программы.')
 
-    def get_com_groups(self, usr_id, fr_id):
+    def get_com_groups(self, usr_id, fr_id):    # данная функция отдает количество общих групп
+                                                # пользователей usr_id и fr_id
         params = {'access_token': self.token, 'v': 5.95,
                   'code': ''
-                          'var groups =API.groups.get({user_id:' + str(self.id) + '}).items;'  # группы User
-                                                                                  'var counts = API.groups.get({user_id:' + str(
-                      self.id) + '}).count;'  # количество групп User
-                                 'var usr_friends = API.friends.get({user_id:' + str(self.id) + '}).items;'
-                                                                                                'var usr_friends_check_count = API.friends.get({user_id:' + str(
-                      self.id) + '}).count;'
-                                 'if (usr_friends_check_count > 5000){'
-                                 'usr_friends = usr_friends'
-                                 ' + API.friends.get({user_id:' + str(self.id) + ', offset: 5000}).items;}'
-                                                                                 'var i=5*' + str(
-                      d) + ';'  # за один раз - 5 запросов 
-                           'var friends_group_list=[];'
-                           'while (i <(5+5*' + str(d) + '+' + str(f) + '))'
-                                                                       '{''var friend = usr_friends[i];'
-                                                                       'var fr_groups = API.groups.get({user_id: friend}).items;'  # группы  друзей
-                                                                       'friends_group_list = friends_group_list + [fr_groups];'
-                                                                       'i = i+1;'
-                                                                       '};'
-                                                                       'return {"groups":groups, "fr_group":friends_group_list, "usr_friends":usr_friends};'
+                          'var usr_groups =API.groups.get({user_id:' + str(usr_id) + '}).items;'  # группы User
+                          'var fr_groups =API.groups.get({user_id:' + str(fr_id) + '}).items;'    # группы друга
+                          'return {"usr_groups":usr_groups, "fr_groups":fr_groups};'
                   }
-
+        try:
+            response = requests.get(
+                'https://api.vk.com/method/execute',
+                params
+            )
+            time.sleep(0.33)
+            return len(list(set(response.json()['response']['usr_groups']) & set(response.json()['response']['fr_groups'])))
+            #['response']['people_list']['items']
+        except requests.exceptions.ConnectionError:
+            print('Ошибка соединения. Ждем 5 сек после чего попытается восстановить связь!')
+            time.sleep(5)
+            try:
+                response = requests.get(
+                    'https://api.vk.com/method/execute',
+                    params
+                )
+                time.sleep(0.33)
+                return response.json()
+            except requests.exceptions.ConnectionError:
+                print('Ошибка соединения. Ждем 10 сек после чего попытается восстановить связь!')
+                time.sleep(10)
+                try:
+                    response = requests.get(
+                        'https://api.vk.com/method/execute',
+                        params
+                    )
+                    time.sleep(0.33)
+                    return response.json()
+                except requests.exceptions.ConnectionError:
+                    print('Ошибка соединения. Завершение работы Программы.')
 

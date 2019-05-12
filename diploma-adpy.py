@@ -24,30 +24,19 @@ def get_user_id(usr_in, token):
         except Exception as e:
             print(response_get_id.json()['error']['error_msg'])
 
-
-def main():
-    get_auth = VKAuth(['friends'], '6889971', '5.95')
-    get_auth.auth()
-    print('Получен следующий токен {}'.format(get_auth._access_token))
-    user_input = input('Введите id или имя пользователя: ')
-    user_id = get_user_id(user_input, get_auth._access_token)
-    user = User(get_auth._access_token, user_id)
-    partners = user.get_partners_by_basic()['response'] # получили три списка пользователей
-                                                        # по базовым критериям
-    db = DB_Mongo()
-    for item in partners['partn_city']:
-        db.import_data(item)
-    for item in partners['partn_sex']:
-        db.import_data(item)
-    for item in partners['partn_relation']:
-        db.import_data(item)
-    print('Формируем список потенциальных друзей для {}'.format(partners['user_data']))
-
+def basic_sort(partners):
     # получаем развесовку базовых критериев через консоль
 
     crt_sex_in = input('Введите вес для критерия - Пол (от 1 до 3): ')
     crt_city_in = input('Введите вес для критерия - Город (от 1 до 3): ')
     crt_relation_in = input('Введите вес для критерия - Семейное положение (от 1 до 3): ')
+
+    criterian_in_1 = ''
+    criterian_in_2 = ''
+    criterian_in_3 = ''
+    value_in_1 = ''
+    value_in_2 = ''
+    value_in_3 = ''
 
     # распределяем развесовку введенную в консоли по переменным
 
@@ -81,7 +70,37 @@ def main():
         criterian_in_3 = 'relation'
         value_in_3 = partners['user_data'][0][criterian_in_3]
 
-    db.find_n_drop(criterian_in_1, value_in_1, criterian_in_2, value_in_2, criterian_in_3, value_in_3)
+    criteries = [criterian_in_1, value_in_1, criterian_in_2, value_in_2, criterian_in_3, value_in_3]
+    return criteries
+
+
+def main():
+    get_auth = VKAuth(['friends'], '6889971', '5.95')
+    get_auth.auth()
+    print('Получен следующий токен {}'.format(get_auth._access_token))
+    user_input = input('Введите id или имя пользователя: ')
+    user_id = get_user_id(user_input, get_auth._access_token)
+    user = User(get_auth._access_token, user_id)
+    db = DB_Mongo()
+    partners_basic = user.get_partners_by_basic()['response'] # получили три списка пользователей
+                                                        # по базовым критериям
+    for item in partners_basic['partn_city']:
+        db.import_data(item)
+    for item in partners_basic['partn_sex']:
+        db.import_data(item)
+    for item in partners_basic['partn_relation']:
+        db.import_data(item)
+    print('Формируем список потенциальных друзей для {}'.format(partners_basic['user_data']))
+
+    criteries = basic_sort(partners_basic)
+    db.find_n_drop_basic(criteries[0], criteries[1], criteries[2], criteries[3], criteries[4], criteries[5])
+    db.put_field() # создали поле com_group со значением 0 в каждом документе коллекции
+    basic_id = db.get_basic_id()
+    for id in basic_id:
+        if user.get_com_groups(user_id, id) > 1:
+            db.put_value(id)
+
+
 
 
 if __name__ == "__main__":
