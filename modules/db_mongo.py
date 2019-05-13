@@ -17,13 +17,6 @@ class DB_Mongo:
     def item_count(self):
         print(self.db.data.find().count())
 
-
-#    def find_by_name(name, db):
-#        regex = re.compile('.*' + name + '.*')
-#        concerts = db.concerts
-#        for item in concerts.find({'Исполнитель': regex}).sort('Цена'):
-#            print(item)
-
     def find_n_drop_basic(self, criterian1, value1, criterian2, value2, criterian3, value3):
 
         # для каждого списка пользователей по базовому критерию
@@ -50,12 +43,15 @@ class DB_Mongo:
         self.db.buf2.drop()
         #self.db.buf3.drop()
 
-    def put_field(self):
+    def put_fields(self):
         self.db.buf3.update({},
                           {'$set':{'com_group':0}},
                           multi=True)
         self.db.buf3.update({},
                             {'$set': {'com_bdate': 0}},
+                            multi=True)
+        self.db.buf3.update({},
+                            {'$set': {'com_interests': 0}},
                             multi=True)
 
     def put_value_com(self, id_in):
@@ -69,6 +65,15 @@ class DB_Mongo:
                 if item['bdate'][-4:] == bdate_in[-4:]:
                     self.db.buf3.update({'id': item['id']},
                                         {'$set': {'com_bdate': 1}}, multi=True)
+
+
+    def put_value_inter(self, inter_in):
+        regex = re.compile('.*' + inter_in + '.*')
+        for item in self.db.buf3.find({'interests': regex}):
+            self.db.buf3.update({'id': item['id']},
+                                {'$set': {'com_interests': 1}}, multi=True)
+
+
 
     def get_basic_id(self):
         id_list = []
