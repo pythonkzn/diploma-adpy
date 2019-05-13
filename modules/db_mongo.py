@@ -7,15 +7,12 @@ class DB_Mongo:
         self.client = MongoClient('mongodb://localhost:27017/')
         self.db = self.client.hmwrk_db
 
-
     def import_data(self, dict_in):
         data = self.db.data
         data.insert_one(dict_in).inserted_id
 
-
     def drop(self):
         self.db.data.drop()
-
 
     def item_count(self):
         print(self.db.data.find().count())
@@ -26,7 +23,6 @@ class DB_Mongo:
 #        concerts = db.concerts
 #        for item in concerts.find({'Исполнитель': regex}).sort('Цена'):
 #            print(item)
-
 
     def find_n_drop_basic(self, criterian1, value1, criterian2, value2, criterian3, value3):
 
@@ -58,15 +54,21 @@ class DB_Mongo:
         self.db.buf3.update({},
                           {'$set':{'com_group':0}},
                           multi=True)
+        self.db.buf3.update({},
+                            {'$set': {'com_bdate': 0}},
+                            multi=True)
 
-
-    def put_value(self, id_in):
+    def put_value_com(self, id_in):
         self.db.buf3.update({'id': id_in},
-                            {'$set': {'com_group': 1}})
-        for item in self.db.buf3.find():
-            print(item)
-        self.db.buf3.drop()
+                            {'$set': {'com_group': 1}}, multi=True)
 
+
+    def put_value_bdate(self, bdate_in):
+        for item in self.db.buf3.find():
+            if item.get('bdate') is not None:               # проверка на наличия поля bdate
+                if item['bdate'][-4:] == bdate_in[-4:]:
+                    self.db.buf3.update({'id': item['id']},
+                                        {'$set': {'com_bdate': 1}}, multi=True)
 
     def get_basic_id(self):
         id_list = []
@@ -74,6 +76,10 @@ class DB_Mongo:
             id_list.append(item['id'])
         return id_list
 
+    def print_n_drop_db(self):
+        for item in self.db.buf3.find():
+            print(item)
+        self.db.buf3.drop()
 
 
 

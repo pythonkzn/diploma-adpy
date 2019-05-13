@@ -77,13 +77,13 @@ def basic_sort(partners):
 def main():
     get_auth = VKAuth(['friends'], '6889971', '5.95')
     get_auth.auth()
-    print('Получен следующий токен {}'.format(get_auth._access_token))
+    print('Получен следующий токен {}'.format(get_auth._access_token))  # получили токен пользователя
     user_input = input('Введите id или имя пользователя: ')
     user_id = get_user_id(user_input, get_auth._access_token)
     user = User(get_auth._access_token, user_id)
     db = DB_Mongo()
-    partners_basic = user.get_partners_by_basic()['response'] # получили три списка пользователей
-                                                        # по базовым критериям
+    partners_basic = user.get_partners_by_basic()['response']     # получили три списка пользователей
+                                                                  # по базовым критериям
     for item in partners_basic['partn_city']:
         db.import_data(item)
     for item in partners_basic['partn_sex']:
@@ -95,11 +95,13 @@ def main():
     criteries = basic_sort(partners_basic)
     db.find_n_drop_basic(criteries[0], criteries[1], criteries[2], criteries[3], criteries[4], criteries[5])
     db.put_field() # создали поле com_group со значением 0 в каждом документе коллекции
-    basic_id = db.get_basic_id()
+    basic_id = db.get_basic_id() # получили список id пользователей подходящих по базовым критериям
     for id in basic_id:
-        if user.get_com_groups(user_id, id) > 1:
-            db.put_value(id)
+        if user.get_com_groups(user_id, id) > 1:  # отметили в БД пользователей у которых больше 1 общей группы с User
+            db.put_value_com(id)
 
+    db.put_value_bdate(partners_basic['user_data'][0]['bdate']) # отметили в БД пользователей у которых общий год рождения с User
+    db.print_n_drop_db()
 
 
 
