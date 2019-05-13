@@ -73,6 +73,45 @@ def basic_sort(partners):
     criteries = [criterian_in_1, value_in_1, criterian_in_2, value_in_2, criterian_in_3, value_in_3]
     return criteries
 
+def adv_sort():
+    # получаем развесовку базовых критериев через консоль
+
+    crt_gr_in = input('Введите вес для критерия - Общие группы (от 1 до 3): ')
+    crt_bdate_in = input('Введите вес для критерия - Возраст (от 1 до 3): ')
+    crt_inter_in = input('Введите вес для критерия - Интересы (от 1 до 3): ')
+
+    criterian_in_1 = ''
+    criterian_in_2 = ''
+    criterian_in_3 = ''
+    value_in_1 = ''
+    value_in_2 = ''
+    value_in_3 = ''
+
+    # распределяем развесовку введенную в консоли по переменным
+
+    if crt_gr_in == '1':
+        criterian_in_1 = 'com_group'
+    elif crt_gr_in == '2':
+        criterian_in_2 = 'com_group'
+    elif crt_gr_in == '3':
+        criterian_in_3 = 'com_group'
+
+    if crt_bdate_in == '1':
+        criterian_in_1 = 'com_bdate'
+    elif crt_bdate_in == '2':
+        criterian_in_2 = 'com_bdate'
+    elif crt_bdate_in == '3':
+        criterian_in_3 = 'com_bdate'
+
+    if crt_inter_in == '1':
+        criterian_in_1 = 'com_interests'
+    elif crt_inter_in == '2':
+        criterian_in_2 = 'com_interests'
+    elif crt_inter_in == '3':
+        criterian_in_3 = 'com_interests'
+
+    criteries = [criterian_in_1, criterian_in_2, criterian_in_3]
+    return criteries
 
 def main():
     get_auth = VKAuth(['friends'], '6889971', '5.95')
@@ -104,6 +143,8 @@ def main():
     # год рождения с User
     for part in partners_basic['user_data'][0]['interests'].split():    # отметили пересечение по общим интересам
         db.put_value_inter(part)
+    adv_criteries = adv_sort()
+    db.find_n_drop_adv(adv_criteries[0], adv_criteries[1], adv_criteries[2])
     db.print_n_drop_db()
 
 if __name__ == "__main__":

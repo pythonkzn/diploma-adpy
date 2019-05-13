@@ -29,9 +29,9 @@ class DB_Mongo:
         # просеиваем результаты поиска согласно развесовке базовых критериев
 
         for item in self.db.data.find({criterian1: value1}):
-           find_buf_1.insert_one(item).inserted_id
+            find_buf_1.insert_one(item).inserted_id
         for item in self.db.buf.find({criterian2: value2}):
-           find_buf_2.insert_one(item).inserted_id
+            find_buf_2.insert_one(item).inserted_id
         for item in find_buf_2.find({criterian3: value3}):
             find_buf_3.insert_one(item).inserted_id
         print('Найдено {} пользователей удовлетворяющих базовым критериям'.format(self.db.buf3.find().count()))
@@ -41,7 +41,32 @@ class DB_Mongo:
         self.db.data.drop()
         self.db.buf.drop()
         self.db.buf2.drop()
-        #self.db.buf3.drop()
+
+    def find_n_drop_adv(self, criterian1, criterian2, criterian3):
+
+        # для каждого списка пользователей по уточняющему критерию
+        # создается отдельная коллекция в Mongo DB
+
+        find_buf_3 = self.db.buf3
+        find_buf_4 = self.db.buf4
+        find_buf_5 = self.db.buf5
+        find_buf_6 = self.db.buf6
+
+        # просеиваем результаты поиска согласно развесовке базовых критериев
+
+        for item in self.db.buf3.find({criterian1: 1}):
+            find_buf_4.insert_one(item).inserted_id
+        for item in self.db.buf4.find({criterian2: 1}):
+            find_buf_5.insert_one(item).inserted_id
+        for item in find_buf_5.find({criterian3: 1}):
+            find_buf_6.insert_one(item).inserted_id
+        print('Найдено {} пользователей удовлетворяющих уточняющим критериям'.format(self.db.buf6.find().count()))
+
+        # очищаем БД
+
+        self.db.buf3.drop()
+        self.db.buf4.drop()
+        self.db.buf5.drop()
 
     def put_fields(self):
         self.db.buf3.update({},
@@ -66,14 +91,11 @@ class DB_Mongo:
                     self.db.buf3.update({'id': item['id']},
                                         {'$set': {'com_bdate': 1}}, multi=True)
 
-
     def put_value_inter(self, inter_in):
         regex = re.compile('.*' + inter_in + '.*')
         for item in self.db.buf3.find({'interests': regex}):
             self.db.buf3.update({'id': item['id']},
                                 {'$set': {'com_interests': 1}}, multi=True)
-
-
 
     def get_basic_id(self):
         id_list = []
@@ -82,9 +104,9 @@ class DB_Mongo:
         return id_list
 
     def print_n_drop_db(self):
-        for item in self.db.buf3.find():
+        for item in self.db.buf6.find():
             print(item)
-        self.db.buf3.drop()
+        self.db.buf6.drop()
 
 
 
