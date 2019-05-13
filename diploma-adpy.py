@@ -24,6 +24,7 @@ def get_user_id(usr_in, token):
         except Exception as e:
             print(response_get_id.json()['error']['error_msg'])
 
+
 def basic_sort(partners):
     # получаем развесовку базовых критериев через консоль
 
@@ -73,6 +74,7 @@ def basic_sort(partners):
     criteries = [criterian_in_1, value_in_1, criterian_in_2, value_in_2, criterian_in_3, value_in_3]
     return criteries
 
+
 def adv_sort():
     # получаем развесовку базовых критериев через консоль
 
@@ -121,8 +123,9 @@ def main():
     user_id = get_user_id(user_input, get_auth._access_token)
     user = User(get_auth._access_token, user_id)
     db = DB_Mongo()
-    partners_basic = user.get_partners_by_basic()['response']     # получили три списка пользователей
-                                                                  # по базовым критериям
+    partners_basic = user.get_partners_by_basic()['response']
+    # получили три списка пользователей
+    # по базовым критериям
     for item in partners_basic['partn_city']:
         db.import_data(item)
     for item in partners_basic['partn_sex']:
@@ -146,6 +149,7 @@ def main():
     adv_criteries = adv_sort()
     db.find_n_drop_adv(adv_criteries[0], adv_criteries[1], adv_criteries[2])
     db.print_n_drop_db()
+
 
 if __name__ == "__main__":
     main()

@@ -40,7 +40,6 @@ class User:
             )
             time.sleep(0.33)
             return response.json()
-            #['response']['people_list']['items']
         except requests.exceptions.ConnectionError:
             print('Ошибка соединения. Ждем 5 сек после чего попытается восстановить связь!')
             time.sleep(5)
@@ -79,7 +78,6 @@ class User:
             )
             time.sleep(0.33)
             return len(list(set(response.json()['response']['usr_groups']) & set(response.json()['response']['fr_groups'])))
-            #['response']['people_list']['items']
         except requests.exceptions.ConnectionError:
             print('Ошибка соединения. Ждем 5 сек после чего попытается восстановить связь!')
             time.sleep(5)

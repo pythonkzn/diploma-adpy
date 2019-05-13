@@ -34,6 +34,9 @@ class DB_Mongo:
             find_buf_2.insert_one(item).inserted_id
         for item in find_buf_2.find({criterian3: value3}):
             find_buf_3.insert_one(item).inserted_id
+
+        for item in self.db.buf3.find():
+            print(item)
         print('Найдено {} пользователей удовлетворяющих базовым критериям'.format(self.db.buf3.find().count()))
 
         # очищаем БД
