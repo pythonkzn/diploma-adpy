@@ -8,21 +8,20 @@ class User:
         self.token = token
         self.id = id
 
-    def get_partners_by_basic(self):
+    def get_partners_by_basic(self, usr_sex_in, usr_city_in):
         params = {'access_token': self.token, 'v': 5.95,
                   'code': ''
-                          'var usr_params = API.users.get({user_ids:' + str(self.id) + ', '
-                          'fields: "sex, bdate, city, interests, relation"});'
                           'var fr_sex = 0;'
-                          'if ((usr_params@.sex[0]) == 1) {'
+                          'if (('+ str(usr_sex_in) +') == 1)'
+                          '{'
                           'fr_sex = 2;} else {'
                           'fr_sex = 1; }'
                           'var fr_list = API.users.search({count: 200, '
-                          'city: (usr_params@.city)@.id[0], status: 6,'
+                          'city:'+ str(usr_city_in) +', status: 6,'
                           'sex: fr_sex});'
                           'var fr_params = API.users.get({user_ids: fr_list.items@.id, '
                           'fields: "sex, bdate, city, interests, relation"});'               
-                          'return {"fr_list":fr_params, "user_data": usr_params};'
+                          'return {"fr_list":fr_params};'
                   }
         try:
             response = requests.get(

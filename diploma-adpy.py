@@ -12,18 +12,33 @@ def get_user_id(usr_in, token):
         params = {
             'user_ids': usr_in,
             'access_token': token,
-            'v': 5.92
+            'v': 5.92,
+            'fields': 'sex, bdate, city, interests, relation'
         }
         try:
             response_get_id = requests.get(
                 'https://api.vk.com/method/users.get',
                 params
             )
-            id = int(response_get_id.json()['response'][0]['id'])  # получили по имени пользователя его id
-            return id
+            return int(response_get_id.json()['response'][0]['id'])
         except Exception as e:
             print(response_get_id.json()['error']['error_msg'])
 
+def get_user_inf(id_in, token):
+    params = {
+        'user_ids': id_in,
+        'access_token': token,
+        'v': 5.92,
+        'fields': 'sex, bdate, city, interests, relation'
+    }
+    try:
+        response_get_usr = requests.get(
+            'https://api.vk.com/method/users.get',
+            params
+        )
+        return response_get_usr.json()
+    except Exception as e:
+        print(response_get_usr.json()['error']['error_msg'])
 
 def adv_sort():
     # получаем развесовку уточняющих критериев через консоль
@@ -40,14 +55,18 @@ def main():
     print('Получен следующий токен {}'.format(get_auth._access_token))  # получили токен пользователя
     user_input = input('Введите id или имя пользователя: ')
     user_id = get_user_id(user_input, get_auth._access_token)
+    user_full = get_user_inf(user_id, get_auth._access_token)
     user = User(get_auth._access_token, user_id)
     db = DB_Mongo()
     db.all_drop()
-    partners_basic = user.get_partners_by_basic()['response']
+    if user_full['response'][0]['city'] == '':
+        user_full['response'][0]['city'] = {'id': 0, 'title': ''}
+        user_full['response'][0]['city']['id'] = input('Введите код города по которому нужно проводить поиск: ')
+    partners_basic = user.get_partners_by_basic(user_full['response'][0]['id'], user_full['response'][0]['city']['id'])['response']
     # получили cписок из тысячи человек отвечающих базовым критериям
     for item in partners_basic['fr_list']:
         db.import_data(item)
-    print('Формируем список потенциальных друзей для {}'.format(partners_basic['user_data']))
+    print('Формируем список потенциальных друзей для {}'.format(user_full['response']))
     db.put_fields()  # создали поля для уточняющих критериев
     basic_id = db.get_basic_id()  # получили список id пользователей подходящих по базовым критериям
     i = 0
@@ -58,9 +77,9 @@ def main():
         i += 1
     max = input('Введите насколько лет партнер может быть старше ')
     min = input('Введите насколько лет партнер может быть младше ')
-    db.put_value_bdate(partners_basic['user_data'][0]['bdate'], max, min)           # отметили в БД пользователей у которых общий
+    db.put_value_bdate(user_full['response'][0]['bdate'], max, min)           # отметили в БД пользователей у которых общий
     # год рождения с User
-    for part in partners_basic['user_data'][0]['interests'].split():    # отметили пересечение по общим интересам
+    for part in user_full['response'][0]['interests'].split():    # отметили пересечение по общим интересам
         db.put_value_inter(part)
     db.print_basic_list()
     adv_criteries = adv_sort()
