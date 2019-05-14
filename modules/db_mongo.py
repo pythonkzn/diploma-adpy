@@ -17,8 +17,8 @@ class DB_Mongo:
     def item_count(self):
         print(self.db.data.find().count())
 
-    def find_n_drop_adv(self, criterian1, criterian2, criterian3):
-
+    def find_n_drop_adv(self, adv_criteries_in):
+        crit_list = ['com_group', 'com_bdate', 'com_interests']
         # для каждого списка пользователей по уточняющему критерию
         # создается отдельная коллекция в Mongo DB
 
@@ -28,13 +28,23 @@ class DB_Mongo:
         find_buf_6 = self.db.buf6
 
         # просеиваем результаты поиска согласно развесовке базовых критериев
+        for crit in crit_list:
+            if adv_criteries_in.get(crit) == '1':
+                for item in self.db.buf3.find({crit: 1}):
+                    find_buf_4.insert_one(item).inserted_id
 
-        for item in self.db.buf3.find({criterian1: 1}):
-            find_buf_4.insert_one(item).inserted_id
-        for item in self.db.buf4.find({criterian2: 1}):
-            find_buf_5.insert_one(item).inserted_id
-        for item in find_buf_5.find({criterian3: 1}):
-            find_buf_6.insert_one(item).inserted_id
+        for crit in crit_list:
+            if adv_criteries_in.get(crit) == '2':
+                for item in self.db.buf4.find({crit: 1}):
+                    find_buf_5.insert_one(item).inserted_id
+
+        for crit in crit_list:
+            if adv_criteries_in.get(crit) == '3':
+                for item in self.db.buf5.find({crit: 1}):
+                    find_buf_6.insert_one(item).inserted_id
+                for item in self.db.buf5.find({'interests': ''}):  # на последнем шаге оставляем
+                    find_buf_6.insert_one(item).inserted_id  #также пользователей с незаполненным полем
+
         print('Найдено {} пользователей удовлетворяющих уточняющим критериям'.format(self.db.buf6.find().count()))
 
         # очищаем БД
@@ -59,10 +69,10 @@ class DB_Mongo:
                             {'$set': {'com_group': 1}}, multi=True)
 
 
-    def put_value_bdate(self, bdate_in):
+    def put_value_bdate(self, bdate_in, max_in, min_in):
         for item in self.db.buf3.find():
-            if item.get('bdate') is not None:               # проверка на наличия поля bdate
-                if item['bdate'][-4:] == bdate_in[-4:]:
+            if (item.get('bdate') is not None) and (len(item.get('bdate')) > 6) and (len(bdate_in) > 6):
+                if int(item['bdate'][-4:]) in range(int(bdate_in[-4:]) - int(min_in), int(bdate_in[-4:]) + int(max_in)):
                     self.db.buf3.update({'id': item['id']},
                                         {'$set': {'com_bdate': 1}}, multi=True)
 
@@ -81,6 +91,17 @@ class DB_Mongo:
     def print_n_drop_db(self):
         for item in self.db.buf6.find():
             print(item)
+        self.db.buf6.drop()
+
+    def print_basic_list(self):
+        for item in self.db.buf3.find():
+            print(item)
+
+
+    def all_drop(self):
+        self.db.buf3.drop()
+        self.db.buf4.drop()
+        self.db.buf5.drop()
         self.db.buf6.drop()
 
 
