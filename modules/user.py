@@ -13,25 +13,16 @@ class User:
                   'code': ''
                           'var usr_params = API.users.get({user_ids:' + str(self.id) + ', '
                           'fields: "sex, bdate, city, interests, relation"});'
-                          'var city_list = API.users.search({count: 1000, '
-                          'city: (usr_params@.city)@.id[0]});'  # получили список пользователей 
-                                                                # с общим параметром city
-                          'var sex_list = API.users.search({count: 1000, '
-                          'sex: (usr_params@.sex)[0]});'  # получили список пользователей 
-                                                          # с общим параметром sex
-                          'var relation_list = API.users.search({count: 1000, status: (usr_params@.relation)[0]});' # получили список пользователей с общим параметром relation
-                          'var partn_city_params = API.users.get({user_ids: city_list.items@.id, '
-                          'fields: "sex, bdate, city, interests, relation"});'  # получили расширенную инфу
-                                                                                # пользователей с общим параметром city
-                          'var partn_sex_params = API.users.get({user_ids: sex_list.items@.id, '
-                          'fields: "sex, bdate, city, interests, relation"});'  # получили расширенную инфу
-                                                                                # пользователей с общим параметром sex               
-                          'var partn_relation_params = API.users.get({user_ids: relation_list.items@.id, '
-                          'fields: "sex, bdate, city, interests, relation"});'   # получили расширенную инфу
-                                                                                 # пользователей с общим параметром 
-                                                                                 # relation                                                        
-                          'return {"partn_city": partn_city_params, "partn_sex": partn_sex_params,'
-                          '"partn_relation": partn_relation_params, "user_data": usr_params};'
+                          'var fr_sex = 0;'
+                          'if ((usr_params@.sex[0]) == 1) {'
+                          'fr_sex = 2;} else {'
+                          'fr_sex = 1; }'
+                          'var fr_list = API.users.search({count: 200, '
+                          'city: (usr_params@.city)@.id[0], status: 6,'
+                          'sex: fr_sex});'
+                          'var fr_params = API.users.get({user_ids: fr_list.items@.id, '
+                          'fields: "sex, bdate, city, interests, relation"});'               
+                          'return {"fr_list":fr_params, "user_data": usr_params};'
                   }
         try:
             response = requests.get(
@@ -77,7 +68,11 @@ class User:
                 params
             )
             time.sleep(0.33)
-            return len(list(set(response.json()['response']['usr_groups']) & set(response.json()['response']['fr_groups'])))
+            if response.json()['response']['fr_groups'] != None:
+                return len(list(set(response.json()['response']['usr_groups']) & set(response.json()['response']['fr_groups'])))
+            else:
+                return 0
+
         except requests.exceptions.ConnectionError:
             print('Ошибка соединения. Ждем 5 сек после чего попытается восстановить связь!')
             time.sleep(5)
