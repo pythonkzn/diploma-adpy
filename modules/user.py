@@ -8,11 +8,20 @@ class User:
         self.token = token
         self.id = id
 
+    def vk_request(self, params_in):
+        response = requests.get(
+            'https://api.vk.com/method/execute',
+            params_in
+        )
+        time.sleep(0.33)
+        out = response.json()
+        return response.json()
+
     def get_partners_by_basic(self, usr_sex_in, usr_city_in):
         params = {'access_token': self.token, 'v': 5.95,
                   'code': ''
                           'var fr_sex = 0;'
-                          'if (('+ str(usr_sex_in) +') == 1)'
+                          'if (('+ str(usr_sex_in) +') == "1")'
                           '{'
                           'fr_sex = 2;} else {'
                           'fr_sex = 1; }'
@@ -24,32 +33,17 @@ class User:
                           'return {"fr_list":fr_params};'
                   }
         try:
-            response = requests.get(
-                'https://api.vk.com/method/execute',
-                params
-            )
-            time.sleep(0.33)
-            return response.json()
+            return self.vk_request(params)
         except requests.exceptions.ConnectionError:
             print('Ошибка соединения. Ждем 5 сек после чего попытается восстановить связь!')
             time.sleep(5)
             try:
-                response = requests.get(
-                    'https://api.vk.com/method/execute',
-                    params
-                )
-                time.sleep(0.33)
-                return response.json()
+                return self.vk_request(params)
             except requests.exceptions.ConnectionError:
                 print('Ошибка соединения. Ждем 10 сек после чего попытается восстановить связь!')
                 time.sleep(10)
                 try:
-                    response = requests.get(
-                        'https://api.vk.com/method/execute',
-                        params
-                    )
-                    time.sleep(0.33)
-                    return response.json()
+                    return self.vk_request(params)
                 except requests.exceptions.ConnectionError:
                     print('Ошибка соединения. Завершение работы Программы.')
 
@@ -62,36 +56,29 @@ class User:
                           'return {"usr_groups":usr_groups, "fr_groups":fr_groups};'
                   }
         try:
-            response = requests.get(
-                'https://api.vk.com/method/execute',
-                params
-            )
-            time.sleep(0.33)
-            if response.json()['response']['fr_groups'] != None:
-                return len(list(set(response.json()['response']['usr_groups']) & set(response.json()['response']['fr_groups'])))
+            req = self.vk_request(params)
+            if req['response']['fr_groups'] != None:
+                return len(list(set(req['response']['usr_groups']) & set(req['response']['fr_groups'])))
             else:
                 return 0
-
         except requests.exceptions.ConnectionError:
             print('Ошибка соединения. Ждем 5 сек после чего попытается восстановить связь!')
             time.sleep(5)
             try:
-                response = requests.get(
-                    'https://api.vk.com/method/execute',
-                    params
-                )
-                time.sleep(0.33)
-                return response.json()
+                req = self.vk_request(params)
+                if req['response']['fr_groups'] != None:
+                    return len(list(set(req['response']['usr_groups']) & set(req['response']['fr_groups'])))
+                else:
+                    return 0
             except requests.exceptions.ConnectionError:
                 print('Ошибка соединения. Ждем 10 сек после чего попытается восстановить связь!')
                 time.sleep(10)
                 try:
-                    response = requests.get(
-                        'https://api.vk.com/method/execute',
-                        params
-                    )
-                    time.sleep(0.33)
-                    return response.json()
+                    req = self.vk_request(params)
+                    if req['response']['fr_groups'] != None:
+                        return len(list(set(req['response']['usr_groups']) & set(req['response']['fr_groups'])))
+                    else:
+                        return 0
                 except requests.exceptions.ConnectionError:
                     print('Ошибка соединения. Завершение работы Программы.')
 

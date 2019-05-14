@@ -68,7 +68,6 @@ class DB_Mongo:
         self.db.buf3.update({'id': id_in},
                             {'$set': {'com_group': 1}}, multi=True)
 
-
     def put_value_bdate(self, bdate_in, max_in, min_in):
         for item in self.db.buf3.find():
             if (item.get('bdate') is not None) and (len(item.get('bdate')) > 6) and (len(bdate_in) > 6):
@@ -96,7 +95,6 @@ class DB_Mongo:
     def print_basic_list(self):
         for item in self.db.buf3.find():
             print(item)
-
 
     def all_drop(self):
         self.db.buf3.drop()
