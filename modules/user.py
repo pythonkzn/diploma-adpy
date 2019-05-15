@@ -58,7 +58,10 @@ class User:
         try:
             req = self.vk_request(params)
             if req['response']['fr_groups'] != None:
-                return len(list(set(req['response']['usr_groups']) & set(req['response']['fr_groups'])))
+                if req['response']['usr_groups'] != None:
+                    return len(list(set(req['response']['usr_groups']) & set(req['response']['fr_groups'])))
+                else:
+                    return 0
             else:
                 return 0
         except requests.exceptions.ConnectionError:
