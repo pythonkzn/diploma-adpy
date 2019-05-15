@@ -17,6 +17,15 @@ class User:
         out = response.json()
         return response.json()
 
+    def check_resp(self, resp_in):
+        if resp_in['response']['fr_groups'] != None:
+            if resp_in['response']['usr_groups'] != None:
+                return len(list(set(resp_in['response']['usr_groups']) & set(resp_in['response']['fr_groups'])))
+            else:
+                return 0
+        else:
+            return 0
+
     def get_partners_by_basic(self, usr_sex_in, usr_city_in):
         params = {'access_token': self.token, 'v': 5.95,
                   'code': ''
@@ -57,31 +66,19 @@ class User:
                   }
         try:
             req = self.vk_request(params)
-            if req['response']['fr_groups'] != None:
-                if req['response']['usr_groups'] != None:
-                    return len(list(set(req['response']['usr_groups']) & set(req['response']['fr_groups'])))
-                else:
-                    return 0
-            else:
-                return 0
+            return self.check_resp(req)
         except requests.exceptions.ConnectionError:
             print('Ошибка соединения. Ждем 5 сек после чего попытается восстановить связь!')
             time.sleep(5)
             try:
                 req = self.vk_request(params)
-                if req['response']['fr_groups'] != None:
-                    return len(list(set(req['response']['usr_groups']) & set(req['response']['fr_groups'])))
-                else:
-                    return 0
+                return self.check_resp(req)
             except requests.exceptions.ConnectionError:
                 print('Ошибка соединения. Ждем 10 сек после чего попытается восстановить связь!')
                 time.sleep(10)
                 try:
                     req = self.vk_request(params)
-                    if req['response']['fr_groups'] != None:
-                        return len(list(set(req['response']['usr_groups']) & set(req['response']['fr_groups'])))
-                    else:
-                        return 0
+                    return self.check_resp(req)
                 except requests.exceptions.ConnectionError:
                     print('Ошибка соединения. Завершение работы Программы.')
 
