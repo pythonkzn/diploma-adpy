@@ -102,5 +102,3 @@ class DB_Mongo:
         self.db.buf5.drop()
         self.db.buf6.drop()
 
-
-

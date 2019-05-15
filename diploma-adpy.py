@@ -2,7 +2,6 @@ from modules.vkauth import VKAuth
 from modules.vkexec import VkExecute
 from modules.db_mongo import DB_Mongo
 from modules.vkapi import VkApi
-import requests
 
 
 def adv_sort():
