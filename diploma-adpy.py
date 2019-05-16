@@ -2,7 +2,8 @@ from modules.vkauth import VKAuth
 from modules.vkexec import VkExecute
 from modules.db_mongo import DB_Mongo
 from modules.vkapi import VkApi
-
+import json
+import codecs
 
 def adv_sort():
     # получаем развесовку уточняющих критериев через консоль
@@ -40,13 +41,18 @@ def db_operation(db_in, partners_basic_in, user_full_in, user_in, user_id_in):
         if user_in.get_com_groups(user_id_in, id) > 1:  # отметили в БД пользователей у которых больше 1 группы с User
             db_in.put_value_com(id)
         i += 1
-    max = input('Введите насколько лет партнер может быть старше ')
-    min = input('Введите насколько лет партнер может быть младше ')
-    db_in.put_value_bdate(user_full_in['response'][0]['bdate'], max, min)  # отметили в БД пользователей у которых общий
+    max_age = input('Введите насколько лет партнер может быть старше ')
+    min_age = input('Введите насколько лет партнер может быть младше ')
+    db_in.put_value_bdate(user_full_in['response'][0]['bdate'], max_age, min_age)  # отметили в БД пользователей у которых общий
     # год рождения с Userъ
     if 'interests' in user_full_in['response'][0].keys():
         for part in user_full_in['response'][0]['interests'].split():    # отметили пересечение по общим интересам
             db_in.put_value_inter(part)
+
+
+def list_to_json(list, path_f):
+    with codecs.open(path_f, 'w', encoding='utf-8') as json_file:
+        json.dump(list, json_file, ensure_ascii=False)
 
 
 def main():
@@ -63,9 +69,13 @@ def main():
     partners_basic = get_basic_partners(user, user_full)    # получили cписок из 200 человек по базовым критериям
     db_operation(db, partners_basic, user_full, user, user_id)    # записали базовый список в БД
     adv_criteries = adv_sort()    # сформировали уточняющие критерии
-    db.find_n_drop_adv(adv_criteries)    # отсортировали по уточняющим критериям
+    out_db = db.find_n_drop_adv(adv_criteries)    # отсортировали по уточняющим критериям
+    out_list = []
+    for item in out_db.find():
+        x = vkapi.get_fr(item['id'])
+        out_list.append(x)
     db.print_n_drop_db()
-
+    list_to_json(out_list, 'outjson.json')
 
 if __name__ == "__main__":
     main()

@@ -39,3 +39,27 @@ class VkApi:
             return response_get_usr.json()
         except Exception as e:
             print(response_get_usr.json()['error']['error_msg'])
+
+    def get_fr(self, id):
+        params = {
+            'owner_id': id,
+            'access_token': self.token,
+            'v': 5.95,
+            'extended': '1',
+            'album_id': 'profile'
+        }
+        try:
+            response_fr_json = requests.get(
+                'https://api.vk.com/method/photos.get',
+                params
+            )
+        except Exception as e:
+            print(response_fr_json.json()['error']['error_msg'])
+
+        if 'error' not in response_fr_json.json():
+            photos = response_fr_json.json()['response']['items']
+            photos = sorted(photos, key=lambda k: k['likes']['count'])    # отсортировали по количеству лайков
+            fr_out = {'usr_url': 'https://vk.com/id' + str(photos[0]['owner_id']), 'top3_photos': photos[-3:]}
+        else:
+            fr_out = {'usr_url': 'https://vk.com/id' + str(id), 'top3_photos':'private profile'}
+        return fr_out

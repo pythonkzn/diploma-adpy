@@ -66,9 +66,8 @@ class DB_Mongo:
                         if i == 10:
                             break
         self.db.buf5.drop()
-
         print('Найдено {} пользователей удовлетворяющих уточняющим критериям'.format(self.db.buf6.find().count()))
-
+        return self.db.buf6
 
     def put_fields(self):
         self.db.buf3.update({},
