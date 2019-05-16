@@ -32,26 +32,43 @@ class DB_Mongo:
             if adv_criteries_in.get(crit) == '1':
                 for item in self.db.buf3.find({crit: 1}):
                     find_buf_4.insert_one(item).inserted_id
+                if self.db.buf4.find().count() < 10:
+                    i = 0
+                    for item in self.db.buf3.find({crit: 0}):
+                        find_buf_4.insert_one(item).inserted_id
+                        i +=1
+                        if i == 10:
+                            break
+        self.db.buf3.drop()
 
         for crit in crit_list:
             if adv_criteries_in.get(crit) == '2':
                 for item in self.db.buf4.find({crit: 1}):
                     find_buf_5.insert_one(item).inserted_id
+                if self.db.buf5.find().count() < 10:
+                    i = 0
+                    for item in self.db.buf4.find({crit: 0}):
+                        find_buf_5.insert_one(item).inserted_id
+                        i += 1
+                        if i == 10:
+                            break
+        self.db.buf4.drop()
 
         for crit in crit_list:
             if adv_criteries_in.get(crit) == '3':
                 for item in self.db.buf5.find({crit: 1}):
                     find_buf_6.insert_one(item).inserted_id
-                for item in self.db.buf5.find({'interests': ''}):  # на последнем шаге оставляем
-                    find_buf_6.insert_one(item).inserted_id  #также пользователей с незаполненным полем
+                if self.db.buf6.find().count() < 10:
+                    i = 0
+                    for item in self.db.buf5.find({crit: 0}):
+                        find_buf_6.insert_one(item).inserted_id
+                        i += 1
+                        if i == 10:
+                            break
+        self.db.buf5.drop()
 
         print('Найдено {} пользователей удовлетворяющих уточняющим критериям'.format(self.db.buf6.find().count()))
 
-        # очищаем БД
-
-        self.db.buf3.drop()
-        self.db.buf4.drop()
-        self.db.buf5.drop()
 
     def put_fields(self):
         self.db.buf3.update({},

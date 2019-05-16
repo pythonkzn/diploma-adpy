@@ -14,16 +14,17 @@ def adv_sort():
 
 
 def get_basic_partners(user_in, user_full_in):
+    usr_full_var = user_full_in['response'][0]
     if 'city' not in user_full_in['response'][0]:
-        user_full_in['response'][0]['city'] = {'id': 0, 'title': ''}
-        user_full_in['response'][0]['city']['id'] = input('Введите код города по которому нужно проводить поиск: ')
+        usr_full_var['city'] = {'id': 0, 'title': ''}
+        usr_full_var['city']['id'] = input('Введите код города по которому нужно проводить поиск: ')
     if 'bdate' not in user_full_in['response'][0]:
-        user_full_in['response'][0]['bdate'] = ''
-        user_full_in['response'][0]['bdate'] = input('Введите дату рождения в формате "D.M.YYYY": ')
+        usr_full_var['bdate'] = ''
+        usr_full_var['bdate'] = input('Введите дату рождения в формате "D.M.YYYY": ')
     if len(user_full_in['response'][0]['bdate']) < 6:
-        user_full_in['response'][0]['bdate'] = ''
-        user_full_in['response'][0]['bdate'] = input('Введите дату рождения в формате "D.M.YYYY": ')
-    partners_basic_out = user_in.get_partners_by_basic(user_full_in['response'][0]['sex'], user_full_in['response'][0]['city']['id'])['response']
+        usr_full_var['bdate'] = ''
+        usr_full_var['bdate'] = input('Введите дату рождения в формате "D.M.YYYY": ')
+    partners_basic_out = user_in.get_partners_by_basic(usr_full_var['sex'], usr_full_var['city']['id'])['response']
     return partners_basic_out
 
 
@@ -35,7 +36,7 @@ def db_operation(db_in, partners_basic_in, user_full_in, user_in, user_id_in):
     basic_id = db_in.get_basic_id()  # получили список id пользователей подходящих по базовым критериям
     i = 0
     for id in basic_id:
-        print(i)
+        print('Обработка {} записи из {}'.format(i,len(basic_id)))
         if user_in.get_com_groups(user_id_in, id) > 1:  # отметили в БД пользователей у которых больше 1 группы с User
             db_in.put_value_com(id)
         i += 1
@@ -61,7 +62,6 @@ def main():
     db.all_drop()
     partners_basic = get_basic_partners(user, user_full)    # получили cписок из 200 человек по базовым критериям
     db_operation(db, partners_basic, user_full, user, user_id)    # записали базовый список в БД
-    db.print_basic_list()
     adv_criteries = adv_sort()    # сформировали уточняющие критерии
     db.find_n_drop_adv(adv_criteries)    # отсортировали по уточняющим критериям
     db.print_n_drop_db()
