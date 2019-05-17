@@ -57,9 +57,19 @@ class VkApi:
             print(response_fr_json.json()['error']['error_msg'])
 
         if 'error' not in response_fr_json.json():
+            url_photos = []
+            flag = 0
             photos = response_fr_json.json()['response']['items']
             photos = sorted(photos, key=lambda k: k['likes']['count'])    # отсортировали по количеству лайков
-            fr_out = {'usr_url': 'https://vk.com/id' + str(photos[0]['owner_id']), 'top3_photos': photos[-3:]}
+            photos = photos[-3:]
+            for item in photos:
+                for size in item['sizes']:
+                    if size['type'] == 'o':    # даем ссылку на фото в оригинальном качестве
+                        url_photos.append(size['url'])
+                        flag = 1
+                if flag == 0:    # если такое ориг. кач-во нет то загружаем качество первое в списке
+                    url_photos.append(item['sizes'][0]['url'])
+            fr_out = {'usr_url': 'https://vk.com/id' + str(photos[0]['owner_id']), 'top3_photos': url_photos}
         else:
             fr_out = {'usr_url': 'https://vk.com/id' + str(id), 'top3_photos':'private profile'}
         return fr_out

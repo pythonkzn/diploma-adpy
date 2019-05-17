@@ -2,6 +2,7 @@ from modules.vkauth import VKAuth
 from modules.vkexec import VkExecute
 from modules.db_mongo import DB_Mongo
 from modules.vkapi import VkApi
+from pprint import pprint
 import json
 import codecs
 
@@ -74,8 +75,8 @@ def main():
     for item in out_db.find():
         x = vkapi.get_fr(item['id'])
         out_list.append(x)
-    db.print_n_drop_db()
     list_to_json(out_list, 'outjson.json')
+    pprint(out_list)
 
 if __name__ == "__main__":
     main()
