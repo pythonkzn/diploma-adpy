@@ -63,6 +63,7 @@ class VkApi:
             photos = sorted(photos, key=lambda k: k['likes']['count'])    # отсортировали по количеству лайков
             photos = photos[-3:]
             for item in photos:
+                flag = 0
                 for size in item['sizes']:
                     if size['type'] == 'o':    # даем ссылку на фото в оригинальном качестве
                         url_photos.append(size['url'])
