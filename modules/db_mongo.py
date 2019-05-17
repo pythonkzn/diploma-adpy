@@ -15,7 +15,7 @@ class DB_Mongo:
         self.db.data.drop()
 
     def item_count(self):
-        print(self.db.data.find().count())
+        return(self.db.data.find().count())
 
     def find_n_drop_adv(self, adv_criteries_in):
         crit_list = ['com_group', 'com_bdate', 'com_interests']
