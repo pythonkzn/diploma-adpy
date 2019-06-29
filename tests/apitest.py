@@ -19,8 +19,8 @@ class TestServerFunctionality(unittest.TestCase):
         self.assertEqual(self.response.json()['response'][0]['id'], 3967309)
 
     def test_data(self):
-        self.assertEqual(self.response.json()['response'][0]['first_name'], 'Ruslan')
-        self.assertEqual(self.response.json()['response'][0]['last_name'], 'Ravilov')
+        self.assertEqual(self.response.json()['response'][0]['first_name'], '')
+        self.assertEqual(self.response.json()['response'][0]['last_name'], '')
 
     def tearDown(self):
         pass
